@@ -1,0 +1,121 @@
+npx create-react-app my-store
+cd my-store
+npm install @radix-ui/react-select lucide-react
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./src/
+                   components/
+                       ProductCard.jsx
+                import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
+export default function ProductCard({ product, language, addToCart }) {
+  return (
+    <Card key={product.id} className="border rounded-lg shadow-md p-4">
+      <img src={product.image} alt={product.name[language]} className="w-full h-40 object-cover" />
+      <CardContent>
+        <h3 className="text-lg font-semibold">{product.name[language]}</h3>
+        <p className="text-gray-600 text-sm">{product.description[language]}</p>
+        <div className="flex justify-between items-center mt-3">
+          <p className="text-primary font-bold">{product.price.toFixed(2)} دينار</p>
+          <Badge variant="secondary">{product.stock} متوفر</Badge>
+        </div>
+        <Button 
+          className="mt-3 w-full" 
+          onClick={() => addToCart(product)}
+          disabled={product.stock <= 0}
+        >
+          {product.stock <= 0 ? "نفذت الكمية" : "إضافة للسلة"}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+
+          Store.jsx
+                import { useState } from "react";
+import ProductCard from "./ProductCard";
+import { Select } from "@/components/ui/select";
+
+const translations = {
+  ar: { storeName: "🛍️ متجر LeLe", availableProducts: "🛒 المنتجات المتاحة", language: "اللغة" },
+  en: { storeName: "🛍️ LeLe Store", availableProducts: "🛒 Available Products", language: "Language" },
+};
+
+const products = [
+  { 
+    id: 1, name: { ar: "مسكارا Shedoes", en: "Shedoes Mascara" }, price: 1.4, 
+    image: "https://img.kwcdn.com/product/Fancyalgo/17e7dfba.jpg", 
+    description: { ar: "ماسكارا مكثفة", en: "Volumizing mascara" }, stock: 24 
+  },
+  { 
+    id: 2, name: { ar: "مرطب الفراولة", en: "Strawberry Lip Balm" }, price: 0.7, 
+    image: "https://img.kwcdn.com/product/fancy/c93ec2a7.jpg", 
+    description: { ar: "مرطب وملون للشفاه", en: "Lip moisturizer & tint" }, stock: 20 
+  },
+  { 
+    id: 3, name: { ar: "مرطب شفاف", en: "Clear Lip Balm" }, price: 0.35, 
+    image: "https://img.kwcdn.com/product/fancy/27976ce7.jpg", 
+    description: { ar: "مرطب شفاف متعدد الاستخدامات", en: "Multi-purpose clear balm" }, stock: 24 
+  }
+];
+
+export default function Store() {
+  const [cart, setCart] = useState([]);
+  const [language, setLanguage] = useState("ar");
+  const t = translations[language];
+
+  const addToCart = (product) => setCart([...cart, { ...product, quantity: 1 }]);
+
+  return (
+    <div className="p-4 max-w-4xl mx-auto min-h-screen">
+      <header className="mb-6 border-b pb-4 flex justify-between items-center">
+        <h1 className="text-2xl font-bold">{t.storeName}</h1>
+        <Select value={language} onChange={(e) => setLanguage(e.target.value)}>
+          <option value="ar">العربية</option>
+          <option value="en">English</option>
+        </Select>
+      </header>
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold">{t.availableProducts}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} language={language} addToCart={addToCart} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+src/
+App.jsx
+import Store from "./components/Store";
+
+function App() {
+  return (
+    <div className="App">
+      <Store />
+    </div>
+  );
+}
+
+export default App;
+main.jsx
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import "./index.css";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+index.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
